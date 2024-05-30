@@ -2,7 +2,7 @@
 
 namespace Parkomat.Models
 {
-    public class ApplicationUser : IdentityUser
+    public class ApplicationUser : ApplicationUser
     {
         public string Name { get; set; }
         public string Surname { get; set; }
