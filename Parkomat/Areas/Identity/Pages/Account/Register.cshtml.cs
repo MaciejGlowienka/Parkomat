@@ -75,7 +75,7 @@ namespace Parkomat.Areas.Identity.Pages.Account
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required]
+            [Required(ErrorMessage = "Adres email jest wymagany")]
             [EmailAddress]
             [Display(Name = "Email")]
             public string Email { get; set; }
@@ -84,8 +84,8 @@ namespace Parkomat.Areas.Identity.Pages.Account
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+            [Required(ErrorMessage = "Hasło jest wymagane")]
+            [StringLength(100, ErrorMessage = "Hasło musi mieć conajmniej {2} i maksymalnie {1} znaków długości.", MinimumLength = 6)]
             [DataType(DataType.Password)]
             [Display(Name = "Password")]
             public string Password { get; set; }
@@ -96,20 +96,20 @@ namespace Parkomat.Areas.Identity.Pages.Account
             /// </summary>
             [DataType(DataType.Password)]
             [Display(Name = "Confirm password")]
-            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+            [Compare("Password", ErrorMessage = "Hasło nie zgadza się z powtórzeniem.")]
             public string ConfirmPassword { get; set; }
 
-            [Required]
-            [Display(Name = "Name")]
+            [Required(ErrorMessage = "Imię jest wymagane")]
+            [Display(Name = "Imię")]
             public string Name { get; set; }
 
-            [Required]
-            [Display(Name = "Surname")]
+            [Required(ErrorMessage = "Nazwisko jest wymagane")]
+            [Display(Name = "Nazwisko")]
             public string Surname { get; set; }
 
-            [Required]
+            [Required(ErrorMessage = "Data urodzenia jest wymagana")]
             [DataType(DataType.Date)]
-            [Display(Name = "Birthday")]
+            [Display(Name = "Data urodzenia")]
             public DateTime Birthday { get; set; }
         }
 

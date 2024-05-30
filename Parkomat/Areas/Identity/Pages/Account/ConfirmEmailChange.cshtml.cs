@@ -48,7 +48,7 @@ namespace Parkomat.Areas.Identity.Pages.Account
             var result = await _userManager.ChangeEmailAsync(user, email, code);
             if (!result.Succeeded)
             {
-                StatusMessage = "Error changing email.";
+                StatusMessage = "Wystąpił błąd przy zmianie adresu email.";
                 return Page();
             }
 
@@ -62,7 +62,7 @@ namespace Parkomat.Areas.Identity.Pages.Account
             }
 
             await _signInManager.RefreshSignInAsync(user);
-            StatusMessage = "Thank you for confirming your email change.";
+            StatusMessage = "Twój adres email został zmieniony.";
             return Page();
         }
     }

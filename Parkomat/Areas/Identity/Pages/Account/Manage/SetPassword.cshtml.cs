@@ -60,7 +60,7 @@ namespace Parkomat.Areas.Identity.Pages.Account.Manage
             /// </summary>
             [DataType(DataType.Password)]
             [Display(Name = "Confirm new password")]
-            [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
+            [Compare("NewPassword", ErrorMessage = "Powtórzone nowe hasło musi być identyczne.")]
             public string ConfirmPassword { get; set; }
         }
 
@@ -106,7 +106,7 @@ namespace Parkomat.Areas.Identity.Pages.Account.Manage
             }
 
             await _signInManager.RefreshSignInAsync(user);
-            StatusMessage = "Your password has been set.";
+            StatusMessage = "Twoje hasło zostało ustawione.";
 
             return RedirectToPage();
         }
