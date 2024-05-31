@@ -1,0 +1,33 @@
+﻿@model List<Parkomat.Models.Parking>
+
+    <div class="row pt-4">
+        <div class="col-6">
+            <h2 class="text-primary">
+                Historia parkowania
+            </h2>
+        </div>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Data rozpoczęcia parkowania</th>
+                <th>Data zakończenia parkowania</th>
+                <th>Tablica rejestracyjna</th>
+                <th>Lokalizacja parkingu</th>
+                <th>Koszt</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var parking in Model)
+            {
+                <tr>
+                    <td>@parking.ParkingStart?.ToString("g")</td>
+                    <td>@parking.ParkingStop?.ToString("g")</td>
+                    <td>@parking.CarLicensePlate</td>
+                    <td>@parking.ParkingLot?.ParkingLotName</td>
+                    <td>@parking.Cost?.ToString("C")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    </div>
