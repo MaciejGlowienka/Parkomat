@@ -32,6 +32,8 @@ namespace Parkomat.Areas.Identity.Pages.Account.Manage
         /// </summary>
         public string Username { get; set; }
 
+
+
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -52,6 +54,15 @@ namespace Parkomat.Areas.Identity.Pages.Account.Manage
         /// </summary>
         public class InputModel
         {
+            [Display(Name = "Name")]
+            public string Name { get; set; }
+
+            [Display(Name = "Surname")]
+            public string Surname { get; set; }
+
+            [DataType(DataType.Date)]
+            [Display(Name = "Birthday")]
+            public DateTime Birthday { get; set; }
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
@@ -70,6 +81,9 @@ namespace Parkomat.Areas.Identity.Pages.Account.Manage
 
             Input = new InputModel
             {
+                Name = user.Name,
+                Surname = user.Surname,
+                Birthday = user.Birthday,
                 PhoneNumber = phoneNumber
             };
         }
@@ -100,6 +114,21 @@ namespace Parkomat.Areas.Identity.Pages.Account.Manage
                 return Page();
             }
 
+            if (Input.Name != user.Name)
+            {
+                user.Name = Input.Name;
+            }
+
+            if (Input.Surname != user.Surname)
+            {
+                user.Surname = Input.Surname;
+            }
+
+            if (Input.Birthday != user.Birthday)
+            {
+                user.Birthday = Input.Birthday;
+            }
+
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
             if (Input.PhoneNumber != phoneNumber)
             {
@@ -111,6 +140,7 @@ namespace Parkomat.Areas.Identity.Pages.Account.Manage
                 }
             }
 
+            await _userManager.UpdateAsync(user);
             await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "Your profile has been updated";
             return RedirectToPage();
