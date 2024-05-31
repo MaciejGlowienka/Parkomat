@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using Parkomat.Models;
 
 namespace Parkomat.Areas.Identity.Pages.Account.Manage
 {
@@ -142,19 +143,19 @@ namespace Parkomat.Areas.Identity.Pages.Account.Manage
             }
         }
 
-        private async Task LoadSharedKeyAndQrCodeUriAsync(ApplicationUser user)
+        private async Task LoadSharedKeyAndQrCodeUriAsync(IdentityUser user)
         {
             // Load the authenticator key & QR code URI to display on the form
-            var unformattedKey = await _userManager.GetAuthenticatorKeyAsync(user);
+            var unformattedKey = await _userManager.GetAuthenticatorKeyAsync((ApplicationUser)user);
             if (string.IsNullOrEmpty(unformattedKey))
             {
-                await _userManager.ResetAuthenticatorKeyAsync(user);
-                unformattedKey = await _userManager.GetAuthenticatorKeyAsync(user);
+                await _userManager.ResetAuthenticatorKeyAsync((ApplicationUser)user);
+                unformattedKey = await _userManager.GetAuthenticatorKeyAsync((ApplicationUser)user);
             }
 
             SharedKey = FormatKey(unformattedKey);
 
-            var email = await _userManager.GetEmailAsync(user);
+            var email = await _userManager.GetEmailAsync((ApplicationUser)user);
             AuthenticatorUri = GenerateQrCodeUri(email, unformattedKey);
         }
 

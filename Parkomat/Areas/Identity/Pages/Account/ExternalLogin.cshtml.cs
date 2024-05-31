@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using Parkomat.Models;
 
 namespace Parkomat.Areas.Identity.Pages.Account
 {
@@ -25,15 +26,15 @@ namespace Parkomat.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IUserStore<ApplicationUser> _userStore;
-        private readonly IUserEmailStore<ApplicationUser> _emailStore;
+        private readonly IUserStore<IdentityUser> _userStore;
+        private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly IEmailSender _emailSender;
         private readonly ILogger<ExternalLoginModel> _logger;
 
         public ExternalLoginModel(
             SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager,
-            IUserStore<ApplicationUser> userStore,
+            IUserStore<IdentityUser> userStore,
             ILogger<ExternalLoginModel> logger,
             IEmailSender emailSender)
         {
@@ -156,16 +157,16 @@ namespace Parkomat.Areas.Identity.Pages.Account
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
 
-                var result = await _userManager.CreateAsync(user);
+                var result = await _userManager.CreateAsync((ApplicationUser)user);
                 if (result.Succeeded)
                 {
-                    result = await _userManager.AddLoginAsync(user, info);
+                    result = await _userManager.AddLoginAsync((ApplicationUser)user, info);
                     if (result.Succeeded)
                     {
                         _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
 
-                        var userId = await _userManager.GetUserIdAsync(user);
-                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                        var userId = await _userManager.GetUserIdAsync((ApplicationUser)user);
+                        var code = await _userManager.GenerateEmailConfirmationTokenAsync((ApplicationUser)user);
                         code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                         var callbackUrl = Url.Page(
                             "/Account/ConfirmEmail",
@@ -182,7 +183,7 @@ namespace Parkomat.Areas.Identity.Pages.Account
                             return RedirectToPage("./RegisterConfirmation", new { Email = Input.Email });
                         }
 
-                        await _signInManager.SignInAsync(user, isPersistent: false, info.LoginProvider);
+                        await _signInManager.SignInAsync((ApplicationUser)user, isPersistent: false, info.LoginProvider);
                         return LocalRedirect(returnUrl);
                     }
                 }
@@ -197,27 +198,27 @@ namespace Parkomat.Areas.Identity.Pages.Account
             return Page();
         }
 
-        private ApplicationUser CreateUser()
+        private IdentityUser CreateUser()
         {
             try
             {
-                return Activator.CreateInstance<ApplicationUser>();
+                return Activator.CreateInstance<IdentityUser>();
             }
             catch
             {
-                throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
-                    $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
+                throw new InvalidOperationException($"Can't create an instance of '{nameof(IdentityUser)}'. " +
+                    $"Ensure that '{nameof(IdentityUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
                     $"override the external login page in /Areas/Identity/Pages/Account/ExternalLogin.cshtml");
             }
         }
 
-        private IUserEmailStore<ApplicationUser> GetEmailStore()
+        private IUserEmailStore<IdentityUser> GetEmailStore()
         {
             if (!_userManager.SupportsUserEmail)
             {
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
-            return (IUserEmailStore<ApplicationUser>)_userStore;
+            return (IUserEmailStore<IdentityUser>)_userStore;
         }
     }
 }

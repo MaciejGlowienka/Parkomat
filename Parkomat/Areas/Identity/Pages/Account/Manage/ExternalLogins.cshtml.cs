@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Parkomat.Models;
 
 namespace Parkomat.Areas.Identity.Pages.Account.Manage
 {
@@ -18,12 +19,12 @@ namespace Parkomat.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IUserStore<ApplicationUser> _userStore;
+        private readonly IUserStore<IdentityUser> _userStore;
 
         public ExternalLoginsModel(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IUserStore<ApplicationUser> userStore)
+            IUserStore<IdentityUser> userStore)
         {
             _userManager = userManager;
             _signInManager = signInManager;

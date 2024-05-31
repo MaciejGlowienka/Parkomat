@@ -17,13 +17,15 @@ namespace Parkomat.Data
         public DbSet<PriceList> PriceLists { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
 
-
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
         
 
             base.OnModelCreating(modelBuilder);
 
+
+            
             modelBuilder.Entity<Parking>()
                 .HasOne(p => p.User)
                 .WithMany(u => u.Parkings)
