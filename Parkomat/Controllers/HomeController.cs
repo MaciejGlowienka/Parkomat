@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.FlowAnalysis;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Parkomat.Data;
 using Parkomat.Models;
 using System.Diagnostics;
@@ -27,6 +28,11 @@ namespace Parkomat.Controllers
             return View();
         }
 
+        public IActionResult Payment()
+        {
+            return View();
+        }
+
         public IActionResult CreateParking()
         {
             return View();
@@ -43,13 +49,17 @@ namespace Parkomat.Controllers
             UserId = _userManager.GetUserId(User),
             Cost = 0
         };
+            if(parking.UserId.IsNullOrEmpty())
+            {
+                parking.UserId = "unlogged";
+            }
             var parkinglot = _context.ParkingsLots.FirstOrDefault(x => x.ParkingLotId == parking.ParkingLotID);
             if (parkinglot != null)
             {
                 var pricelist = _context.PriceLists.FirstOrDefault(x => x.PriceListId == parkinglot.PriceListId);
                 var time = timeInMinutes;
                 var pointer = 0;
-                decimal[] cost = { pricelist.Hour1, pricelist.Hour2, pricelist.Hour3, pricelist.Rest };
+                decimal[] cost = {pricelist.Hour1, pricelist.Hour2, pricelist.Hour3, pricelist.Rest };
                 while (time > 60)
                 {
                     parking.Cost += cost[Math.Min(pointer, 3)];
@@ -65,8 +75,8 @@ namespace Parkomat.Controllers
             }
                 
             _context.Parkings.Add(parking);
-            _context.SaveChanges();
-            return View();
+            //_context.SaveChanges();
+            return RedirectToAction("Payment");
         }
 
 
