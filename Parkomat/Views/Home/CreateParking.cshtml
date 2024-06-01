@@ -1,0 +1,26 @@
+﻿@model Parking
+
+<form method="post">
+    <div class="border p-3 mt-4">
+        <div class="row pb-2">
+            <h2 class="text-primary">
+                Parkuj teraz
+            </h2>
+        </div>
+        <div class="mb-3">
+            <label>Rejestracja</label>
+            <input name="carLicensePlate" type="text" class="form-control"></input>
+        </div>
+        <div class="mb-3">
+            <label>Czas (w minutach)</label>
+            <input name="timeInMinutes" type="number" class="form-control"></input>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:150px">
+            Parkuj
+        </button>
+        <a asp-controller="Home" asp-action="index" class="btn btn-secondary" style="width:150px">
+            Powrót
+        </a>
+    </div>
+
+</form>

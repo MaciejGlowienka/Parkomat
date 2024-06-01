@@ -7,11 +7,10 @@ namespace Parkomat.Models
     {
         [Key]
         public int ParkingId { get; set; }
-
-        [Required]
         public string? CarLicensePlate { get; set; }
         public DateTime? ParkingStart { get; set; }
         public DateTime? ParkingStop { get; set; }
+
         [Column(TypeName = "decimal(5, 2)")]
         public decimal? Cost { get; set; }
         public int ParkingLotID { get; set; }

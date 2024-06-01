@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.FlowAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Parkomat.Data;
 using Parkomat.Models;
@@ -25,6 +26,50 @@ namespace Parkomat.Controllers
         {
             return View();
         }
+
+        public IActionResult CreateParking()
+        {
+            return View();
+        }
+        [HttpPost]
+        public IActionResult CreateParking(string carLicensePlate, int timeInMinutes)
+        {
+            var parking = new Parking()
+            {
+            ParkingStop = DateTime.Now.AddMinutes(timeInMinutes),
+            ParkingStart = DateTime.Now,
+            CarLicensePlate = carLicensePlate,
+            ParkingLotID = 1,
+            UserId = _userManager.GetUserId(User),
+            Cost = 0
+        };
+            var parkinglot = _context.ParkingsLots.FirstOrDefault(x => x.ParkingLotId == parking.ParkingLotID);
+            if (parkinglot != null)
+            {
+                var pricelist = _context.PriceLists.FirstOrDefault(x => x.PriceListId == parkinglot.PriceListId);
+                var time = timeInMinutes;
+                var pointer = 0;
+                decimal[] cost = { pricelist.Hour1, pricelist.Hour2, pricelist.Hour3, pricelist.Rest };
+                while (time > 60)
+                {
+                    parking.Cost += cost[Math.Min(pointer, 3)];
+                    time -= 60;
+                    pointer++;
+                }
+                parking.Cost += cost[Math.Min(pointer, 3)]*time/60;
+
+            }
+            else
+            {
+                return View();
+            }
+                
+            _context.Parkings.Add(parking);
+            _context.SaveChanges();
+            return View();
+        }
+
+
         [Authorize(Roles = SD.Role_User)]
         public IActionResult ParkingPremium()
         {
