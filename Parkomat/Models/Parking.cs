@@ -16,6 +16,7 @@ namespace Parkomat.Models
         [Column(TypeName = "decimal(5, 2)")]
         [AllowNull]
         public decimal? Cost { get; set; }
+        public bool? Payed { get; set; }
         public int ParkingLotID { get; set; }
         public ParkingLot? ParkingLot { get; set; }
         
