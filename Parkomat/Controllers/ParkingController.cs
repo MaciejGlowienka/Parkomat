@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.IdentityModel.Tokens;
 using Parkomat.Data;
 using Parkomat.Models;
@@ -30,11 +31,11 @@ namespace Parkomat.Controllers
             return View();
         }
         [HttpPost]
-        public IActionResult CreateParking(string carLicensePlate, int timeInMinutes)
+        public IActionResult CreateParking(string carLicensePlate, int time)
         {
             var parking = new Parking()
             {
-                ParkingStop = DateTime.Now.AddMinutes(timeInMinutes),
+                ParkingStop = DateTime.Now.AddMinutes(time),
                 ParkingStart = DateTime.Now,
                 CarLicensePlate = carLicensePlate,
                 ParkingLotID = 1,
@@ -49,16 +50,16 @@ namespace Parkomat.Controllers
             if (parkinglot != null)
             {
                 var pricelist = _context.PriceLists.FirstOrDefault(x => x.PriceListId == parkinglot.PriceListId);
-                var time = timeInMinutes;
+                var timeInMinutes = time;
                 var pointer = 0;
                 decimal[] cost = { pricelist.Hour1, pricelist.Hour2, pricelist.Hour3, pricelist.Rest };
-                while (time > 60)
+                while (timeInMinutes > 60)
                 {
                     parking.Cost += cost[Math.Min(pointer, 3)];
-                    time -= 60;
+                    timeInMinutes -= 60;
                     pointer++;
                 }
-                parking.Cost += cost[Math.Min(pointer, 3)] * time / 60;
+                parking.Cost += cost[Math.Min(pointer, 3)] * timeInMinutes / 60;
 
             }
             else
@@ -67,15 +68,98 @@ namespace Parkomat.Controllers
             }
 
             _context.Parkings.Add(parking);
-            //_context.SaveChanges();
-            return RedirectToAction("Payment");
+            _context.SaveChanges();
+            return RedirectToAction("Home");
         }
 
         [Authorize(Roles = SD.Role_User)]
+        [Route("Parking/Premium")]
         public IActionResult ParkingPremium()
         {
-            return View();
+            return View(new Parking());
         }
+
+        [Authorize(Roles = SD.Role_User)]
+        [HttpPost]
+        [ActionName("ParkingPremiumStart")]
+        public IActionResult ParkingPremiumStartAction(string carLicensePlate)
+        {
+            var parking = new Parking()
+            {
+                ParkingStart = DateTime.Now,
+                CarLicensePlate = carLicensePlate,
+                ParkingLotID = 1,
+                UserId = _userManager.GetUserId(User),
+                Cost = 0
+            };
+            if (parking.UserId.IsNullOrEmpty())
+            {
+                parking.UserId = "unlogged";
+            }
+
+            _context.Parkings.Add(parking);
+            _context.SaveChanges();
+            int id = parking.ParkingId;
+
+            var viewModel = new Parking
+            {
+                ParkingId = id,
+                CarLicensePlate = parking.CarLicensePlate,
+                ParkingStart = parking.ParkingStart,
+            };
+
+            return View("ParkingPremium", viewModel);
+        }
+
+        [Authorize(Roles = SD.Role_User)]
+        [HttpPost]
+        [ActionName("ParkingPremiumStop")]
+        public IActionResult ParkingPremiumStopAction(int ParkingId)
+        {
+            int id = ParkingId;
+            Console.WriteLine(id);
+            var parking = _context.Parkings.FirstOrDefault(p => p.ParkingId == ParkingId);
+            Console.WriteLine(parking.CarLicensePlate);
+
+
+            Parking parkingUpdated = new Parking
+            {
+                ParkingStart = parking.ParkingStart,
+                CarLicensePlate = parking.CarLicensePlate,
+                ParkingLotID = parking.ParkingLotID,
+                UserId = parking.UserId,
+                Cost = parking.Cost
+            };
+            
+            parkingUpdated.ParkingStop = DateTime.Now;
+            
+            var parkinglot = _context.ParkingsLots.FirstOrDefault(x => x.ParkingLotId == parking.ParkingLotID);
+            if (parkinglot != null)
+            {
+                var pricelist = _context.PriceLists.FirstOrDefault(x => x.PriceListId == parkinglot.PriceListId);
+                TimeSpan time = (TimeSpan)(parkingUpdated.ParkingStop - parkingUpdated.ParkingStart);
+                int timeInMinutes = (int)time.TotalMinutes;
+                var pointer = 0;
+                decimal[] cost = { pricelist.Hour1, pricelist.Hour2, pricelist.Hour3, pricelist.Rest };
+                while (timeInMinutes > 60)
+                {
+                    parkingUpdated.Cost += cost[Math.Min(pointer, 3)];
+                    timeInMinutes -= 60;
+                    pointer++;
+                }
+                parkingUpdated.Cost += cost[Math.Min(pointer, 3)] * timeInMinutes / 60;
+
+            }
+            else
+            {
+                return View("ParkingPremium", new Parking());
+            }
+
+            _context.Parkings.Attach(parkingUpdated);
+            _context.SaveChanges();
+            return View("ParkingPremium", new Parking());
+        }
+
         [Authorize(Roles = SD.Role_User)]
         public async Task<IActionResult> ParkingHistory()
         {

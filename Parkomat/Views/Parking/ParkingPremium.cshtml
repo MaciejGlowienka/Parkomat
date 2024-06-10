@@ -1,6 +1,29 @@
-﻿@{
-    ViewData["Title"] = "Parking";
-}
-<h1>@ViewData["Title"]</h1>
+﻿@model Parking
 
-<p>Use this page to park your .</p>
+
+@if (Model.ParkingId > 0)
+{
+
+    int id = Model.ParkingId;
+
+    <form action="ParkingPremiumStop" method="post">
+        <input type="hidden" name="ParkingId" value=@id></input>
+        <button type="submit" name="Stop">Stop</button>
+    </form>
+    <div>
+        <h3>Parking Information</h3>
+        <p><strong>Car License Plate:</strong> @Model.CarLicensePlate</p>
+        <p><strong>Parking Start:</strong> @Model.ParkingStart</p>
+        <p><strong>Current Cost:</strong> @Model.Cost</p>
+    </div>
+}
+else
+{
+    <form action="ParkingPremiumStart" method="post">
+        <div class="mb-3">
+            <label>Rejestracja</label>
+            <input name="carLicensePlate" type="text" class="form-control"></input>
+        </div>
+        <button type="submit" name="start"> Start</button>
+    </form>
+}
