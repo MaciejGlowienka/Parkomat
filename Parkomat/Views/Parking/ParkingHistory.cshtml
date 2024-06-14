@@ -1,4 +1,8 @@
 ﻿@model List<Parkomat.Models.Parking>
+@{
+    decimal totalCost = Model.Where(p => p.Cost.HasValue).Sum(p => p.Cost.Value);
+}
+
 
     <div class="row pt-4">
         <div class="col-6">
@@ -27,7 +31,15 @@
                     <td>@parking.ParkingLot?.ParkingLotName</td>
                     <td>@parking.Cost?.ToString("C")</td>
                 </tr>
+
             }
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>Łączny koszt</td>
+                <td>@totalCost</td>
+            </tr>
         </tbody>
     </table>
     </div>
