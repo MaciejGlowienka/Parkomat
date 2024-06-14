@@ -36,6 +36,7 @@ namespace Parkomat.Controllers
         [HttpPost]
         public IActionResult CreateParking(string carLicensePlate, int time)
         {
+            Console.WriteLine(time);
             var parking = new Parking()
             {
                 ParkingStop = DateTime.Now.AddMinutes(time),
@@ -72,7 +73,7 @@ namespace Parkomat.Controllers
 
             _context.Parkings.Add(parking);
             _context.SaveChanges();
-            return RedirectToAction("Home");
+            return RedirectToAction("index" , "Home");
         }
 
         [Authorize(Roles = SD.Role_User)]
