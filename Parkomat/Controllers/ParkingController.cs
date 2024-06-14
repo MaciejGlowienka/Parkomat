@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Parkomat.Data;
 using Parkomat.Models;
 
+
 namespace Parkomat.Controllers
 {
     public class ParkingController : Controller
@@ -76,7 +77,21 @@ namespace Parkomat.Controllers
         [Route("Parking/Premium")]
         public IActionResult ParkingPremium()
         {
-            return View(new Parking());
+            var userId = _userManager.GetUserId(User);
+            if(userId == null)
+            {
+                return NotFound("Nie znaleziono użytkownika");
+            }
+            var parking = _context.Parkings
+                .FirstOrDefault(p => p.UserId == userId && p.ParkingStop == null);
+            if (parking == null)
+            {
+                return View(new Parking());
+            }
+            else
+            {
+                return View(parking);
+            }
         }
 
         [Authorize(Roles = SD.Role_User)]
@@ -119,45 +134,35 @@ namespace Parkomat.Controllers
             int id = ParkingId;
             Console.WriteLine(id);
             var parking = _context.Parkings.FirstOrDefault(p => p.ParkingId == ParkingId);
-            Console.WriteLine(parking.CarLicensePlate);
 
 
-            Parking parkingUpdated = new Parking
-            {
-                ParkingStart = parking.ParkingStart,
-                CarLicensePlate = parking.CarLicensePlate,
-                ParkingLotID = parking.ParkingLotID,
-                UserId = parking.UserId,
-                Cost = parking.Cost
-            };
-            
-            parkingUpdated.ParkingStop = DateTime.Now;
+            parking.ParkingStop = DateTime.Now;
             
             var parkinglot = _context.ParkingsLots.FirstOrDefault(x => x.ParkingLotId == parking.ParkingLotID);
             if (parkinglot != null)
             {
                 var pricelist = _context.PriceLists.FirstOrDefault(x => x.PriceListId == parkinglot.PriceListId);
-                TimeSpan time = (TimeSpan)(parkingUpdated.ParkingStop - parkingUpdated.ParkingStart);
+                TimeSpan time = (TimeSpan)(parking.ParkingStop - parking.ParkingStart);
                 int timeInMinutes = (int)time.TotalMinutes;
                 var pointer = 0;
                 decimal[] cost = { pricelist.Hour1, pricelist.Hour2, pricelist.Hour3, pricelist.Rest };
                 while (timeInMinutes > 60)
                 {
-                    parkingUpdated.Cost += cost[Math.Min(pointer, 3)];
+                    parking.Cost += cost[Math.Min(pointer, 3)];
                     timeInMinutes -= 60;
                     pointer++;
                 }
-                parkingUpdated.Cost += cost[Math.Min(pointer, 3)] * timeInMinutes / 60;
+                parking.Cost += cost[Math.Min(pointer, 3)] * timeInMinutes / 60;
 
             }
             else
             {
-                return View("ParkingPremium", new Parking());
+                return RedirectToAction("ParkingPremium");
             }
 
-            _context.Parkings.Attach(parkingUpdated);
+            _context.Parkings.Update(parking);
             _context.SaveChanges();
-            return View("ParkingPremium", new Parking());
+            return RedirectToAction("ParkingPremium");
         }
 
         [Authorize(Roles = SD.Role_User)]
