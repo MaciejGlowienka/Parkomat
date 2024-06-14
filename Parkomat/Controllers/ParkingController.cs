@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+using Newtonsoft.Json;
 using Parkomat.Data;
 using Parkomat.Models;
 
@@ -78,7 +80,7 @@ namespace Parkomat.Controllers
         public IActionResult ParkingPremium()
         {
             var userId = _userManager.GetUserId(User);
-            if(userId == null)
+            if (userId == null)
             {
                 return NotFound("Nie znaleziono użytkownika");
             }
@@ -137,7 +139,7 @@ namespace Parkomat.Controllers
 
 
             parking.ParkingStop = DateTime.Now;
-            
+
             var parkinglot = _context.ParkingsLots.FirstOrDefault(x => x.ParkingLotId == parking.ParkingLotID);
             if (parkinglot != null)
             {
@@ -171,6 +173,25 @@ namespace Parkomat.Controllers
             var userId = _userManager.GetUserId(User);
             var parkings = await _context.Parkings
                 .Where(p => p.UserId == userId)
+                .Include(p => p.ParkingLot)
+                .ToListAsync();
+            return View(parkings);
+        }
+
+        [Authorize(Roles = SD.Role_Admin)]
+        public async Task<IActionResult> AdminHistory()
+        {
+            var users = await _context.ApplicationUsers.ToListAsync();
+            return View(users);
+        }
+
+
+        [Authorize(Roles = SD.Role_Admin)]
+        public async Task<IActionResult> AdminHistoryDisplay(string mail)
+        {
+            var user = _context.ApplicationUsers.FirstOrDefault(x => x.Email == mail);
+            var parkings = await _context.Parkings
+                .Where(p => p.UserId == user.Id)
                 .Include(p => p.ParkingLot)
                 .ToListAsync();
             return View(parkings);

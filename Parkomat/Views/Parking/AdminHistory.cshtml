@@ -1,0 +1,13 @@
+﻿@model List<ApplicationUser>
+
+
+<form action="AdminHistoryDisplay" method="post">
+        <label for="mail">Wybierz użytkownika:</label>
+    <select id="mail" name="mail">
+        @foreach (var user in Model)
+        {
+            <option value="@user.Email">@user.Email</option>
+        }   
+        </select>
+    <button type="submit" class="btn btn-primary mt-2">Submit</button>
+    </form>
