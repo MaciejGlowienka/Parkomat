@@ -2,8 +2,22 @@
     ViewData["Title"] = "";
 }
 
-<div class="text-center">
-    <a asp-controller="Parking" asp-action="CreateParking" class="btn btn-primary btn-dark">
-        <i class="text-primary"></i>Parkuj teraz
-    </a>
-</div>
+
+
+@if (User.IsInRole(SD.Role_Admin))
+{
+    <div class="text-center">
+        
+            <p class="text-secondary">Witaj w panelu admina</p>
+
+    </div>
+}
+else
+{
+    <div class="text-center">
+        <a asp-controller="Parking" asp-action="CreateParking" class="btn btn-primary btn-dark">
+            <i class="text-primary"></i>Parkuj teraz
+        </a>
+    </div>
+}
+
