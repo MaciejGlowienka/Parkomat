@@ -3,6 +3,7 @@ using Parkomat.Data;
 using Microsoft.AspNetCore.Identity;
 using Parkomat.Models;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Hellow_payment.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
 });
 builder.Services.AddScoped<IEmailSender, EmailSender>();
+builder.Services.AddTransient<IBraintreeService, BraintreeService>();
 
 var app = builder.Build();
 

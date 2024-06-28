@@ -73,7 +73,7 @@ namespace Parkomat.Controllers
 
             _context.Parkings.Add(parking);
             _context.SaveChanges();
-            return RedirectToAction("index" , "Home");
+            return RedirectToAction("Payment" , "Payment" , new {id = parking.ParkingId});
         }
 
         [Authorize(Roles = SD.Role_User)]
