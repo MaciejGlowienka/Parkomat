@@ -12,11 +12,21 @@ using Parkomat.Models;
 
 namespace Parkomat.Controllers
 {
+    /// <summary>
+    /// Controller responsible for managing parking operations.
+    /// </summary>
     public class ParkingController : Controller
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ParkingController"/> class.
+        /// </summary>
+        /// <param name="logger">The logger instance for logging purposes.</param>
+        /// <param name="context">The database context.</param>
+        /// <param name="userManager">The user manager to handle user operations.</param>
 
         public ParkingController(ILogger<HomeController> logger, ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
@@ -24,15 +34,30 @@ namespace Parkomat.Controllers
             _context = context;
             _userManager = userManager;
         }
+
+        /// <summary>
+        /// Displays the parking index page.
+        /// </summary>
+        /// <returns>The view of the index page.</returns>
         public IActionResult Index()
         {
             return View();
         }
 
+        /// <summary>
+        /// Displays the page to create a new parking instance.
+        /// </summary>
+        /// <returns>The view to create a new parking.</returns>
         public IActionResult CreateParking()
         {
             return View();
         }
+        /// <summary>
+        /// Calculates cost and adds information about parking instance to database.
+        /// </summary>
+        /// <param name="carLicensePlate">String containing car license plate for identification.</param>
+        /// <param name="time">Int value representing minutes and used for calculating cost.</param>
+        /// <returns>Refreshes page if something goes wrong and goes to home on success</returns>
         [HttpPost]
         public IActionResult CreateParking(string carLicensePlate, int time)
         {
@@ -76,6 +101,10 @@ namespace Parkomat.Controllers
             return RedirectToAction("index" , "Home");
         }
 
+        /// <summary>
+        /// Checks for active parkings and returns the subpage accordingly
+        /// </summary>
+        /// <returns>Returns notfound subpage if user id is not found. Returns subpage with ongoing parking information or creation subpage if there are none</returns>
         [Authorize(Roles = SD.Role_User)]
         [Route("Parking/Premium")]
         public IActionResult ParkingPremium()
@@ -96,7 +125,11 @@ namespace Parkomat.Controllers
                 return View(parking);
             }
         }
-
+        /// <summary>
+        /// Enters information about parking into the database.
+        /// </summary>
+        /// <param name="carLicensePlate">String containing car license plate for identification.</param>
+        /// <returns>Returns subpage with parking information.</returns>
         [Authorize(Roles = SD.Role_User)]
         [HttpPost]
         [ActionName("ParkingPremiumStart")]
@@ -129,13 +162,17 @@ namespace Parkomat.Controllers
             return View("ParkingPremium", viewModel);
         }
 
+        /// <summary>
+        /// Calculates time spent parking and its cost then updates database with these values.
+        /// </summary>
+        /// <param name="ParkingId">Int containing identification number of parkings.</param>
+        /// <returns>Redirects to the ParkingPremium action after updating the database.</returns>
         [Authorize(Roles = SD.Role_User)]
         [HttpPost]
         [ActionName("ParkingPremiumStop")]
         public IActionResult ParkingPremiumStopAction(int ParkingId)
         {
             int id = ParkingId;
-            Console.WriteLine(id);
             var parking = _context.Parkings.FirstOrDefault(p => p.ParkingId == ParkingId);
 
 
@@ -168,6 +205,10 @@ namespace Parkomat.Controllers
             return RedirectToAction("ParkingPremium");
         }
 
+        /// <summary>
+        /// Retrieves the parking history for the logged-in user.
+        /// </summary>
+        /// <returns>Subpage that contains the view of the parking history.</returns>
         [Authorize(Roles = SD.Role_User)]
         public async Task<IActionResult> ParkingHistory()
         {
@@ -179,6 +220,10 @@ namespace Parkomat.Controllers
             return View(parkings);
         }
 
+        /// <summary>
+        /// Retrieves the parking history for all users (admin only).
+        /// </summary>
+        /// <returns>Subpage that contains list of all users.</returns>
         [Authorize(Roles = SD.Role_Admin)]
         public async Task<IActionResult> AdminHistory()
         {
@@ -186,7 +231,11 @@ namespace Parkomat.Controllers
             return View(users);
         }
 
-
+        /// <summary>
+        /// Displays the parking history for a specific user by email (admin only).
+        /// </summary>
+        /// <param name="mail">String containing the email address of the user whose parking history is to be displayed.</param>
+        /// <returns>Subpage that contains the view of the parking history for the specified user.</returns>
         [Authorize(Roles = SD.Role_Admin)]
         public async Task<IActionResult> AdminHistoryDisplay(string mail)
         {

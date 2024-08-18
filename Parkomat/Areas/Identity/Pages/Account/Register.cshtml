@@ -42,9 +42,9 @@
                 <label asp-for="Input.Birthday"></label>
                 <span asp-validation-for="Input.Birthday" class="text-danger"></span>
             </div>
-            <div class="form-floating mb-3">
+            @* <div class="form-floating mb-3">
                 <select asp-for="Input.Role" asp-items="@Model.Input.RoleList" class="form-select"></select>
-            </div>
+            </div> *@
             <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Zarejestruj się</button>
         </form>
     </div>
